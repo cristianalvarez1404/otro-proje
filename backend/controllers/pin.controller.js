@@ -1,8 +1,17 @@
-import express from "express";
-import creatUser from "../controllers/user.controller.js";
+import Pin from "../models/pin.model.js";
 
-const router = express.Router();
+export const getPins = async (req, res) => {
+  const pageNumber = Number(req.query.cursor) || 0;
+  const LIMIT = 21;
+  const pins = await Pin.find()
+    .limit(LIMIT)
+    .skip(pageNumber * LIMIT);
 
-router.get("/", creatUser);
+  const hasNextPage = pins.length === LIMIT;
 
-export default router;
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  return res
+    .status(200)
+    .json({ pins, nextCursor: hasNextPage ? pageNumber + 1 : null });
+};
