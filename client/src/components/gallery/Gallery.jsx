@@ -172,9 +172,9 @@ const items = [
 
 const fetchPins = async ({ pageParam, search }) => {
   const res = await axios.get(
-    `${import.meta.env.VITE_API_ENDPOINT}/pins?cursor=${pageParam}&search=${
-      search || " "
-    }`
+    `${import.meta.env.VITE_API_ENDPOINT}/pins?cursor=${
+      pageParam || ""
+    }&search=${search || " "}`
   );
   return res.data;
 };
@@ -182,7 +182,7 @@ const fetchPins = async ({ pageParam, search }) => {
 const Gallery = ({ search }) => {
   const { data, fetchNextPage, hasNextPage, status } = useInfiniteQuery({
     queryKey: ["pins", search],
-    queryFn: (pageParam = 0) => fetchPins({ pageParam, search }),
+    queryFn: ({ pageParam = 0 }) => fetchPins({ pageParam, search }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
   });
