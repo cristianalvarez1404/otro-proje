@@ -3,6 +3,7 @@ import Pin from "../models/pin.model.js";
 export const getPins = async (req, res) => {
   const pageNumber = Number(req.query.cursor) || 0;
   const search = req.query.search;
+  const userId = req.query.userId;
   const LIMIT = 21;
 
   const pins = await Pin.find(
@@ -13,7 +14,7 @@ export const getPins = async (req, res) => {
             { tags: { $in: [search] } },
           ],
         }
-      : {}
+      : userId ? {user:userId} : {}
   )
     .limit(LIMIT)
     .skip(pageNumber * LIMIT);

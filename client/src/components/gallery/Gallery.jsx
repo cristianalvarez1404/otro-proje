@@ -170,19 +170,19 @@ const items = [
   },
 ];
 
-const fetchPins = async ({ pageParam, search }) => {
+const fetchPins = async ({ pageParam, search, userId }) => {
   const res = await axios.get(
     `${import.meta.env.VITE_API_ENDPOINT}/pins?cursor=${
       pageParam || ""
-    }&search=${search || " "}`
+    }&search=${search || " "}&userId=${userId || ""}`
   );
   return res.data;
 };
 
-const Gallery = ({ search }) => {
+const Gallery = ({ search,userId,boardId }) => {
   const { data, fetchNextPage, hasNextPage, status } = useInfiniteQuery({
-    queryKey: ["pins", search],
-    queryFn: ({ pageParam = 0 }) => fetchPins({ pageParam, search }),
+    queryKey: ["pins", search,userId],
+    queryFn: ({ pageParam = 0 }) => fetchPins({ pageParam, search, userId }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
   });

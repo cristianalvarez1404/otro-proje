@@ -9,10 +9,10 @@ import apiRequest from "../../utils/apiRequest";
 
 const PostPage = () => {
   const { id } = useParams();
-
+  
   const { isPending, error, data } = useQuery({
     queryKey: ["pin", id],
-    queryFn: () => apiRequest.get(`/pins/${id}`).then((res) => res.data),
+    queryFn: () => apiRequest.get(`/pins/${id}`).then((res) =>  res.data),
   });
 
   if (isPending) return "Loading...";
@@ -33,15 +33,15 @@ const PostPage = () => {
       </svg>
       <div className="postContainer">
         <div className="postImg">
-          <Image path={data.media} alt="" w={736} />
+          <Image src={data.media} alt="" w={736} />
         </div>
         <div className="postDetails">
           <PostInteractions />
-          <Link to={`/${data.user.username}`} className="postUser">
-            <Image path={`/${data.user.img || "/general/noAvatar.png"}`} />
-            <span>{data.user.displayName}</span>
+          <Link to={`/${data.user?.username}`} className="postUser">
+            <Image src={`/${data.user?.img || "/general/noAvatar.png"}`} />
+            <span>{data.user?.displayName}</span>
           </Link>
-          <Comments />
+          <Comments />  
         </div>
       </div>
     </div>
