@@ -5,9 +5,11 @@ import commentRouter from "./routes/comment.route.js";
 import boardRouter from "./routes/board.route.js";
 import connectDb from "./utils/connectDB.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser())
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
