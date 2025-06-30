@@ -1,5 +1,5 @@
 import Comment from "../models/comment.model.js";
-import User from "../models/user.model.js"
+import User from "../models/user.model.js";
 
 export const getPostComment = async (req, res) => {
   const { postId } = req.params;
@@ -9,4 +9,17 @@ export const getPostComment = async (req, res) => {
     .sort({ createdAt: -1 });
 
   return res.status(200).json(comments);
+};
+
+export const addComment = async (req, res) => {
+  const { description, pin } = req.body;
+
+  const userId = req.userId;
+  const comment = await Comment.create({
+    description: description,
+    pin: pin,
+    user: userId,
+  });
+
+  return res.status(201).json(comment);
 };

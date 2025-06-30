@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
 export const getUser = async (req, res, next) => {
   const { username } = req.params;
@@ -29,45 +29,61 @@ export const registerUser = async (req, res) => {
     username,
     email,
     displayName,
-    hashedPassword:newHashedPassword
-  })
+    hashedPassword: newHashedPassword,
+  });
 
-  const {hashedPassword,...detailsWithoutPassword} = user;
+  const { hashedPassword, ...detailsWithoutPassword } = user;
 
-  return res.status(201).json(detailsWithoutPassword)
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_NEV === "production",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  };
+
+  return res
+    .cookie("token", token, cookieOptions)
+    .status(201)
+    .json(detailsWithoutPassword);
 };
 
 export const loginUser = async (req, res) => {
-  const {email, password} = req.body
+  const { email, password } = req.body;
 
-  if(!email || !password){
-    return res.status(400).json({message:"All fields are required!"})
+  if (!email || !password) {
+    return res.status(400).json({ message: "All fields are required!" });
   }
 
-  const user = await User.findOne({email})
+  const user = await User.findOne({ email });
 
-  if(!user){
-    return res.status(400).json({message:"Invalid email or password"})
+  if (!user) {
+    return res.status(400).json({ message: "Invalid email or password" });
   }
 
-  const isPasswordCorrect = await bcrypt.compare(password,user.hashedPassword)
+  const isPasswordCorrect = await bcrypt.compare(password, user.hashedPassword);
 
-  if(!isPasswordCorrect){
-    return res.status(400).json({message:"Invalid email or password"})
+  if (!isPasswordCorrect) {
+    return res.status(400).json({ message: "Invalid email or password" });
   }
 
-  const {hashedPassword,...detailsWithoutPassword} = user.toObject();
+  const { hashedPassword, ...detailsWithoutPassword } = user.toObject();
 
-  const token = jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"1d"})
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
   const cookieOptions = {
-    httpOnly:true,
-    secure:process.env.NODE_NEV === "production",
+    httpOnly: true,
+    secure: process.env.NODE_NEV === "production",
     maxAge: 30 * 24 * 60 * 60 * 1000,
-  
-  }
+  };
 
-  return res.cookie("token",token,cookieOptions).status(200).json(detailsWithoutPassword)
-
-
+  return res
+    .cookie("token", token, cookieOptions)
+    .status(200)
+    .json(detailsWithoutPassword);
 };
-export const logoutUser = async (req, res) => {};
+export const logoutUser = async (req, res) => {
+  res.clearCookie("token").status(200).json({ message: "Logout successful" });
+};
