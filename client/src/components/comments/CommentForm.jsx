@@ -2,6 +2,12 @@ import EmojiPicker from "emoji-picker-react";
 import React, { useState } from "react";
 import "./comments.css";
 import apiRequest from "../../utils/apiRequest";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+const addComment = async (comment) => {
+  const res = await apiRequest.post("/comments", comment);
+  return res.data;
+};
 
 const CommentForm = ({ id }) => {
   const [open, setOpen] = useState(false);
@@ -12,15 +18,25 @@ const CommentForm = ({ id }) => {
     setOpen(false);
   };
 
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: addComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", id] });
+      setDesc("");
+      setOpen(false);
+    },
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await apiRequest.post("/comments", {
+      mutation.mutate({
         description: desc,
         pin: id,
       });
-      console.log(res.data);
     } catch (err) {
       console.log(err);
     }
